@@ -7,7 +7,7 @@
   "license": "MIT",
   "type": "commonjs",
   "engines": {
-    "node": ">=22"
+    "node": "^22.0.0 || ^24.0.0 || >=26.0.0"
   },
   "scripts": {
     "cy:open": "cypress open --e2e",

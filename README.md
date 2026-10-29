@@ -120,7 +120,7 @@ Algumas decisões:
 
 ## Como rodar
 
-Precisa de Node.js 22 ou mais novo (o `.nvmrc` aponta a versão usada).
+Precisa de Node.js 22, 24 ou 26+ (as versões suportadas pelo Cypress 16; o `.nvmrc` aponta a usada no projeto).
 
 ```bash
 git clone https://github.com/AlexDevNavarro/cypress-serverest-qa.git
