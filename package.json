@@ -1,0 +1,30 @@
+{
+  "name": "cypress-serverest-qa",
+  "version": "1.0.0",
+  "description": "Automação de testes E2E (frontend) e de API da aplicação ServeRest com Cypress.",
+  "private": true,
+  "author": "Alex Navarro <alexdevnavarro@gmail.com>",
+  "license": "MIT",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "cy:open": "cypress open --e2e",
+    "test": "cypress run",
+    "test:api": "cypress run --spec \"cypress/e2e/api/**/*.cy.js\"",
+    "test:frontend": "cypress run --spec \"cypress/e2e/frontend/**/*.cy.js\"",
+    "test:smoke": "cypress run --expose grepTags=@smoke,grepFilterSpecs=true"
+  },
+  "devDependencies": {
+    "@cypress/grep": "^7.0.0",
+    "@faker-js/faker": "^10.6.0",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "cypress": "^16.2.1",
+    "cypress-mochawesome-reporter": "^5.0.0"
+  },
+  "allowScripts": {
+    "cypress@16.2.1": true
+  }
+}
