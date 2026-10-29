@@ -35,6 +35,15 @@ declare namespace Cypress {
 
     /** Remove todos os produtos e usuários criados durante o spec. */
     cleanupTestData(): Chainable<void>;
+
+    /** Busca elementos pelo atributo `data-testid`. */
+    getByTestId(
+      testId: string,
+      options?: Partial<Loggable & Timeoutable & Withinable & Shadow>,
+    ): Chainable<JQuery<HTMLElement>>;
+
+    /** Autentica via API e restaura a sessão do frontend com `cy.session`. */
+    loginByApi(user: Pick<ServeRestUser, 'nome' | 'email' | 'password'>): Chainable<void>;
   }
 }
 

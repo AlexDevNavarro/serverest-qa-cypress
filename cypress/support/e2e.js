@@ -3,6 +3,7 @@ import { register as registerCypressGrep } from '@cypress/grep';
 
 import './assertions/json-schema.assertion';
 import './commands/data.commands';
+import './commands/ui.commands';
 
 registerCypressGrep();
 
