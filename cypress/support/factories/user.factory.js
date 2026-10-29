@@ -2,6 +2,9 @@ import { fakerPT_BR as faker } from '@faker-js/faker';
 
 const EMAIL_DOMAIN = 'qa-cypress.com';
 
+/** Senha usada nos testes de login inválido. */
+export const WRONG_PASSWORD = 'SenhaIncorreta123';
+
 /**
  * Gera um e-mail único por execução. A API é pública e compartilhada,
  * então o timestamp evita colisão com dados de outras execuções.

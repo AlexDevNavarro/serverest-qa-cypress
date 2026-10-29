@@ -2,7 +2,7 @@ import { AuthService } from '../../support/api';
 import { SCHEMAS } from '../../support/api/schemas';
 import { HTTP_STATUS } from '../../support/constants/http-status';
 import { MESSAGES, VALIDATION_MESSAGES } from '../../support/constants/messages';
-import { UserFactory } from '../../support/factories/user.factory';
+import { UserFactory, WRONG_PASSWORD } from '../../support/factories/user.factory';
 import { decodeJwtPayload } from '../../support/utils/jwt';
 
 describe('API | Autenticação', { tags: ['@api', '@login'] }, () => {
@@ -34,7 +34,7 @@ describe('API | Autenticação', { tags: ['@api', '@login'] }, () => {
   [
     {
       description: 'senha incorreta',
-      credentials: () => ({ email: registeredUser.email, password: 'SenhaIncorreta123' }),
+      credentials: () => ({ email: registeredUser.email, password: WRONG_PASSWORD }),
     },
     {
       description: 'e-mail não cadastrado',

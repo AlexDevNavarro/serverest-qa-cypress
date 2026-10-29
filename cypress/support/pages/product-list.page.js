@@ -14,7 +14,9 @@ class ProductListPage {
     return this.elements
       .rowByProductName(name)
       .find('td')
-      .then(($cells) => Cypress._.map($cells.slice(0, 4), (cell) => cell.textContent.trim()));
+      .invoke('toArray')
+      .invoke('slice', 0, 4)
+      .invoke('map', (cell) => cell.textContent.trim());
   }
 }
 

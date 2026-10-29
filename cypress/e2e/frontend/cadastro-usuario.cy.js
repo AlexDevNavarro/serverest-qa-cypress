@@ -1,6 +1,6 @@
 import { FRONT_ROUTES } from '../../support/constants/routes';
 import { HTTP_STATUS } from '../../support/constants/http-status';
-import { MESSAGES } from '../../support/constants/messages';
+import { MESSAGES, UI_TEXTS } from '../../support/constants/messages';
 import { UserFactory } from '../../support/factories/user.factory';
 import AdminHomePage from '../../support/pages/admin-home.page';
 import HomePage from '../../support/pages/home.page';
@@ -36,7 +36,7 @@ describe('Frontend | Cadastro de usuário', { tags: ['@frontend', '@cadastro'] }
       cy.location('pathname').should('eq', FRONT_ROUTES.ADMIN_HOME);
       AdminHomePage.elements
         .welcomeTitle()
-        .should('contain.text', 'Bem Vindo')
+        .should('contain.text', UI_TEXTS.ADMIN_WELCOME)
         .and('contain.text', admin.nome);
     },
   );
@@ -52,7 +52,7 @@ describe('Frontend | Cadastro de usuário', { tags: ['@frontend', '@cadastro'] }
       .should('be.visible')
       .and('contain.text', MESSAGES.REGISTER_SUCCESS);
     cy.location('pathname').should('eq', FRONT_ROUTES.HOME);
-    HomePage.elements.title().should('contain.text', 'Serverest Store');
+    HomePage.elements.title().should('contain.text', UI_TEXTS.STORE_TITLE);
     HomePage.elements.adminProductRegisterLink().should('not.exist');
   });
 

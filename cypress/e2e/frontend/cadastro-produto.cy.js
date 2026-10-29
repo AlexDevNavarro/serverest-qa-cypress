@@ -1,7 +1,7 @@
 import { ProductsService } from '../../support/api';
 import { FRONT_ROUTES } from '../../support/constants/routes';
 import { HTTP_STATUS } from '../../support/constants/http-status';
-import { MESSAGES } from '../../support/constants/messages';
+import { MESSAGES, UI_TEXTS } from '../../support/constants/messages';
 import { ProductFactory } from '../../support/factories/product.factory';
 import ProductListPage from '../../support/pages/product-list.page';
 import ProductRegistrationPage from '../../support/pages/product-registration.page';
@@ -48,7 +48,7 @@ describe(
       });
 
       cy.location('pathname').should('eq', FRONT_ROUTES.ADMIN_PRODUCT_LIST);
-      ProductListPage.elements.title().should('have.text', 'Lista dos Produtos');
+      ProductListPage.elements.title().should('have.text', UI_TEXTS.PRODUCT_LIST_TITLE);
       ProductListPage.getProductRowValues(product.nome).should('deep.eq', [
         product.nome,
         `${product.preco}`,

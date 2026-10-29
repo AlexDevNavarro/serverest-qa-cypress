@@ -1,5 +1,6 @@
 import { FRONT_ROUTES, STORAGE_KEYS } from '../../support/constants/routes';
-import { MESSAGES } from '../../support/constants/messages';
+import { MESSAGES, UI_TEXTS } from '../../support/constants/messages';
+import { WRONG_PASSWORD } from '../../support/factories/user.factory';
 import AdminHomePage from '../../support/pages/admin-home.page';
 import HomePage from '../../support/pages/home.page';
 import LoginPage from '../../support/pages/login.page';
@@ -30,7 +31,7 @@ describe('Frontend | Login', { tags: ['@frontend', '@login'] }, () => {
     cy.location('pathname').should('eq', FRONT_ROUTES.ADMIN_HOME);
     AdminHomePage.elements
       .welcomeTitle()
-      .should('contain.text', 'Bem Vindo')
+      .should('contain.text', UI_TEXTS.ADMIN_WELCOME)
       .and('contain.text', admin.nome);
     AdminHomePage.elements.productRegisterLink().should('be.visible');
     getStoredToken().should('match', /^Bearer .+/);
@@ -40,14 +41,14 @@ describe('Frontend | Login', { tags: ['@frontend', '@login'] }, () => {
     LoginPage.login(customer);
 
     cy.location('pathname').should('eq', FRONT_ROUTES.HOME);
-    HomePage.elements.title().should('contain.text', 'Serverest Store');
+    HomePage.elements.title().should('contain.text', UI_TEXTS.STORE_TITLE);
     HomePage.elements.searchInput().should('be.visible');
     HomePage.elements.adminProductRegisterLink().should('not.exist');
     getStoredToken().should('match', /^Bearer .+/);
   });
 
   it('não deve autenticar com senha incorreta', () => {
-    LoginPage.login({ email: admin.email, password: 'SenhaIncorreta123' });
+    LoginPage.login({ email: admin.email, password: WRONG_PASSWORD });
 
     LoginPage.elements
       .errorAlert()
