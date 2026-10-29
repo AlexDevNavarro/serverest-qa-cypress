@@ -1,8 +1,6 @@
 /**
- * Cliente HTTP base da API ServeRest, compartilhado por todos os services.
- *
- * `failOnStatusCode` fica desabilitado porque o status da resposta faz parte do
- * que é validado: os testes negativos precisam receber 4xx sem que o Cypress falhe antes da assertiva.
+ * Request base usado por todos os services.
+ * failOnStatusCode: false porque os testes negativos validam os 4xx.
  *
  * @param {object} options
  * @param {'GET'|'POST'|'PUT'|'DELETE'} [options.method]

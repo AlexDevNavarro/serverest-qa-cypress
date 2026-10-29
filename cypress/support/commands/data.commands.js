@@ -3,17 +3,10 @@ import { HTTP_STATUS } from '../constants/http-status';
 import { ProductFactory } from '../factories/product.factory';
 import { UserFactory } from '../factories/user.factory';
 
-/**
- * Comandos de preparação de massa de dados via API.
- *
- * Os pré-requisitos dos testes são criados pela API (mais rápido e estável que pela UI),
- * e todo recurso criado é registrado para limpeza automática ao final do spec.
- * As verificações aqui são guardas de pré-condição: falham cedo e com mensagem clara
- * caso o ambiente esteja indisponível, em vez de deixar o teste quebrar em outro ponto.
- */
+// Massa de dados criada via API. Os expects abaixo são só pré-condição:
+// se a API estiver fora, o teste falha aqui com uma mensagem clara.
 
-// Registro dos recursos criados durante o spec. Fica no bundle do support file,
-// que é compartilhado por todos os comandos e pelo hook global de limpeza.
+// Fica no support file para ser compartilhado com o hook de limpeza do e2e.js.
 const createdResources = { products: [], users: [] };
 
 Cypress.Commands.add('trackUserForCleanup', (id) => {
@@ -53,11 +46,9 @@ Cypress.Commands.add('createProduct', (token, overrides = {}) => {
   });
 });
 
-/**
- * Remove tudo o que foi criado durante o spec. Produtos são removidos antes dos
- * usuários porque a exclusão exige o token do administrador que os cadastrou.
- * Falhas aqui não quebram o teste: a limpeza é "best effort".
- */
+// Produtos saem antes dos usuários: depois que o admin é excluído, o token dele
+// deixa de valer e os produtos não podem mais ser removidos com ele.
+// Erro na limpeza não derruba o teste.
 Cypress.Commands.add('cleanupTestData', () => {
   const products = createdResources.products.splice(0);
   const users = createdResources.users.splice(0);

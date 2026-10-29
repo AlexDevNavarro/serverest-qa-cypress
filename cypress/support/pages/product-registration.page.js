@@ -7,7 +7,7 @@ class ProductRegistrationPage {
     priceInput: () => cy.getByTestId('preco'),
     descriptionInput: () => cy.getByTestId('descricao'),
     quantityInput: () => cy.getByTestId('quantity'),
-    // O data-testid do botão é "cadastarProdutos" (sic) na aplicação.
+    // Na aplicação o data-testid está escrito assim mesmo, sem o "r".
     submitButton: () => cy.getByTestId('cadastarProdutos'),
     errorAlert: AlertComponent.error,
   };
