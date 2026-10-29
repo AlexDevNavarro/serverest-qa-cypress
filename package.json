@@ -1,5 +1,5 @@
 {
-  "name": "cypress-serverest-qa",
+  "name": "serverest-qa-cypress",
   "version": "1.0.0",
   "description": "Automação de testes E2E (frontend) e de API da aplicação ServeRest com Cypress.",
   "private": true,

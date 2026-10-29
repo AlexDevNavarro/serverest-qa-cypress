@@ -1,6 +1,6 @@
 # ServeRest - Automação de Testes com Cypress
 
-[![CI](https://github.com/AlexDevNavarro/cypress-serverest-qa/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexDevNavarro/cypress-serverest-qa/actions/workflows/ci.yml)
+[![CI](https://github.com/AlexDevNavarro/serverest-qa-cypress/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexDevNavarro/serverest-qa-cypress/actions/workflows/ci.yml)
 
 Testes E2E do frontend e testes de API do [ServeRest](https://serverest.dev), feitos com Cypress em um único projeto.
 
@@ -123,8 +123,8 @@ Algumas decisões:
 Precisa de Node.js 22, 24 ou 26+ (as versões suportadas pelo Cypress 16; o `.nvmrc` aponta a usada no projeto).
 
 ```bash
-git clone https://github.com/AlexDevNavarro/cypress-serverest-qa.git
-cd cypress-serverest-qa
+git clone https://github.com/AlexDevNavarro/serverest-qa-cypress.git
+cd serverest-qa-cypress
 npm ci
 ```
 
