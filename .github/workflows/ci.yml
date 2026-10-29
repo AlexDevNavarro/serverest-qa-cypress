@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  # Execução diária para monitorar a aplicação, que é pública e muda sem aviso.
+  schedule:
+    - cron: '0 11 * * 1-5'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint e formatação
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+        env:
+          # O binário do Cypress não é necessário para o lint.
+          CYPRESS_INSTALL_BINARY: 0
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: Prettier
+        run: npm run format:check
+
+  tests:
+    name: Testes ${{ matrix.suite.name }}
+    needs: lint
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        suite:
+          - name: API
+            id: api
+            spec: cypress/e2e/api/**/*.cy.js
+          - name: Frontend
+            id: frontend
+            spec: cypress/e2e/frontend/**/*.cy.js
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - name: Executar testes
+        uses: cypress-io/github-action@v7
+        with:
+          browser: chrome
+          spec: ${{ matrix.suite.spec }}
+          summary-title: Testes ${{ matrix.suite.name }}
+
+      - name: Publicar relatório HTML
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: relatorio-${{ matrix.suite.id }}
+          path: cypress/reports
+          retention-days: 14
+
+      - name: Publicar screenshots das falhas
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: screenshots-${{ matrix.suite.id }}
+          path: cypress/screenshots
+          retention-days: 14
