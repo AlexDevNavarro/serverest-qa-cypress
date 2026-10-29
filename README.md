@@ -1,172 +1,126 @@
 # ServeRest - Automação de Testes com Cypress
 
 [![CI](https://github.com/AlexDevNavarro/cypress-serverest-qa/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexDevNavarro/cypress-serverest-qa/actions/workflows/ci.yml)
-![Cypress](https://img.shields.io/badge/Cypress-16-69D3A7?logo=cypress&logoColor=white)
-![Node](https://img.shields.io/badge/Node-%E2%89%A522-339933?logo=node.js&logoColor=white)
 
-Testes automatizados E2E do **frontend** e testes da **API** da aplicação [ServeRest](https://serverest.dev), em um único projeto Cypress.
+Testes E2E do frontend e testes de API do [ServeRest](https://serverest.dev), feitos com Cypress em um único projeto.
 
-| Alvo     | URL                          |
-| -------- | ---------------------------- |
-| Frontend | https://front.serverest.dev/ |
-| API      | https://serverest.dev/       |
+- Frontend: https://front.serverest.dev/
+- API: https://serverest.dev/
 
-**6 cenários e 21 casos de teste**: 3 cenários de frontend e 3 de API, cada um com o caminho principal e os casos negativos que importam para a regra de negócio.
+São 3 cenários de frontend e 3 de API, com 21 casos de teste no total. Cada cenário tem o fluxo principal e os casos negativos ligados à regra de negócio.
 
----
+## Cenários
 
-## Sumário
+Os casos marcados com `@smoke` são os que rodam no `npm run test:smoke`.
 
-- [Cenários de teste](#cenários-de-teste)
-- [Stack](#stack)
-- [Arquitetura e padrões de projeto](#arquitetura-e-padrões-de-projeto)
-- [Estrutura do projeto](#estrutura-do-projeto)
-- [Como executar](#como-executar)
-- [Relatórios](#relatórios)
-- [Integração contínua](#integração-contínua)
-- [Qualidade de código e commits](#qualidade-de-código-e-commits)
-- [Observações sobre a aplicação](#observações-sobre-a-aplicação)
+### Frontend
 
----
+**1. Cadastro de usuário** ([cadastro-usuario.cy.js](cypress/e2e/frontend/cadastro-usuario.cy.js))
 
-## Cenários de teste
+| Tipo     | Caso                                                             | O que é validado                                                                      |
+| -------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Positivo | Cadastrar administrador e cair no painel administrativo `@smoke` | `POST /usuarios` com 201, alerta de sucesso, rota `/admin/home` e nome no "Bem Vindo" |
+| Positivo | Cadastrar usuário comum e cair na loja                           | 201, alerta de sucesso, rota `/home` e menu de admin ausente                          |
+| Negativo | Cadastrar com e-mail que já existe                               | 400, alerta "Este email já está sendo usado" e usuário continua na tela de cadastro   |
 
-Legenda: ✅ caminho principal · ❌ caso negativo · `@smoke` caso crítico executado no smoke test.
+**2. Login** ([login.cy.js](cypress/e2e/frontend/login.cy.js))
 
-### Frontend (E2E)
+| Tipo     | Caso                            | O que é validado                                                         |
+| -------- | ------------------------------- | ------------------------------------------------------------------------ |
+| Positivo | Login de administrador `@smoke` | Rota `/admin/home`, nome no "Bem Vindo", menu de admin e token na sessão |
+| Positivo | Login de usuário comum          | Rota `/home`, campo de busca, menu de admin ausente e token na sessão    |
+| Negativo | Login com senha errada          | Alerta "Email e/ou senha inválidos", continua em `/login` e sem token    |
 
-#### Cenário 1: Cadastro de usuário ([cadastro-usuario.cy.js](cypress/e2e/frontend/cadastro-usuario.cy.js))
+**3. Cadastro de produto pelo administrador** ([cadastro-produto.cy.js](cypress/e2e/frontend/cadastro-produto.cy.js))
 
-| Caso                                                                                | Validações                                                                                            |
-| ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| ✅ Cadastrar usuário administrador e direcioná-lo ao painel administrativo `@smoke` | Requisição `POST /usuarios` com status 201, alerta de sucesso, rota `/admin/home`, "Bem Vindo" + nome |
-| ✅ Cadastrar usuário comum e direcioná-lo à loja                                    | Status 201, alerta de sucesso, rota `/home`, ausência do menu administrativo                          |
-| ❌ Não cadastrar usuário com e-mail já utilizado                                    | Status 400, alerta "Este email já está sendo usado", permanece em `/cadastrarusuarios`                |
-
-#### Cenário 2: Login ([login.cy.js](cypress/e2e/frontend/login.cy.js))
-
-| Caso                                                                    | Validações                                                                            |
-| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| ✅ Autenticar administrador e exibir o painel administrativo `@smoke`   | Rota `/admin/home`, boas-vindas com o nome, menu administrativo, token na sessão      |
-| ✅ Autenticar usuário comum e exibir a loja sem funções administrativas | Rota `/home`, busca de produtos visível, menu administrativo ausente, token na sessão |
-| ❌ Não autenticar com senha incorreta                                   | Alerta "Email e/ou senha inválidos", permanece em `/login`, nenhum token gravado      |
-
-#### Cenário 3: Cadastro de produto pelo administrador ([cadastro-produto.cy.js](cypress/e2e/frontend/cadastro-produto.cy.js))
-
-| Caso                                                 | Validações                                                                                                                                   |
-| ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| ✅ Cadastrar produto e exibi-lo na listagem `@smoke` | Status 201, dados persistidos no backend iguais aos do formulário, rota de listagem, linha da tabela com nome, preço, descrição e quantidade |
-| ❌ Não cadastrar produto com nome já existente       | Status 400, alerta "Já existe produto com esse nome", permanece no formulário                                                                |
+| Tipo     | Caso                                         | O que é validado                                                                                       |
+| -------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Positivo | Cadastrar produto e ver na listagem `@smoke` | 201, produto salvo no backend igual ao que foi digitado, nome, preço, descrição e quantidade na tabela |
+| Negativo | Cadastrar produto com nome repetido          | 400, alerta "Já existe produto com esse nome" e continua no formulário                                 |
 
 ### API
 
-#### Cenário 1: Cadastro de usuários ([usuarios.cy.js](cypress/e2e/api/usuarios.cy.js))
+**1. Cadastro de usuários** ([usuarios.cy.js](cypress/e2e/api/usuarios.cy.js))
 
-| Caso                                                             | Validações                                                                 |
-| ---------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| ✅ Cadastrar usuário administrador e persistir os dados `@smoke` | 201, contrato, mensagem; `GET /usuarios/{id}` retorna exatamente o enviado |
-| ❌ Não cadastrar com e-mail já utilizado                         | 400, contrato, mensagem; o e-mail continua associado a um único usuário    |
-| ❌ Não cadastrar com dados inválidos                             | 400, contrato, mensagem específica para cada campo inválido                |
+| Tipo     | Caso                               | O que é validado                                                           |
+| -------- | ---------------------------------- | -------------------------------------------------------------------------- |
+| Positivo | Cadastrar administrador `@smoke`   | 201, contrato e mensagem; o `GET /usuarios/{id}` devolve o que foi enviado |
+| Negativo | Cadastrar com e-mail que já existe | 400, contrato e mensagem; continua existindo um só usuário com o e-mail    |
+| Negativo | Cadastrar com dados inválidos      | 400 e a mensagem de erro de cada campo                                     |
 
-#### Cenário 2: Autenticação ([login.cy.js](cypress/e2e/api/login.cy.js))
+**2. Login** ([login.cy.js](cypress/e2e/api/login.cy.js))
 
-| Caso                                                        | Validações                                                                                |
-| ----------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| ✅ Autenticar e retornar um JWT do próprio usuário `@smoke` | 200, contrato `Bearer <jwt>`, payload do token com o e-mail do usuário e expiração válida |
-| ❌ Não autenticar com senha incorreta _(data-driven)_       | 401, contrato, mensagem genérica                                                          |
-| ❌ Não autenticar com e-mail não cadastrado _(data-driven)_ | 401 com a **mesma** mensagem, sem revelar quais e-mails existem                           |
-| ❌ Não autenticar sem e-mail e senha                        | 400, mensagem para cada campo obrigatório                                                 |
+| Tipo     | Caso                                   | O que é validado                                                          |
+| -------- | -------------------------------------- | ------------------------------------------------------------------------- |
+| Positivo | Login com credenciais válidas `@smoke` | 200, contrato, token `Bearer` cujo payload tem o e-mail do usuário        |
+| Negativo | Senha errada                           | 401 e mensagem genérica                                                   |
+| Negativo | E-mail não cadastrado                  | 401 com a mesma mensagem da senha errada (não revela e-mails cadastrados) |
+| Negativo | E-mail e senha em branco               | 400 e mensagem de cada campo obrigatório                                  |
 
-#### Cenário 3: Gerenciamento de produtos ([produtos.cy.js](cypress/e2e/api/produtos.cy.js))
+Os dois casos de credencial inválida são o mesmo teste rodando com dados diferentes.
 
-| Caso                                                           | Validações                                                         |
-| -------------------------------------------------------------- | ------------------------------------------------------------------ |
-| ✅ Cadastrar produto e disponibilizá-lo para consulta `@smoke` | 201, contrato; `GET /produtos/{id}` retorna exatamente o enviado   |
-| ✅ Atualizar todos os dados de um produto                      | 200, mensagem; consulta posterior reflete a alteração              |
-| ✅ Excluir um produto                                          | 200, mensagem; consulta posterior retorna "Produto não encontrado" |
-| ❌ Não cadastrar produto com nome já existente                 | 400, mensagem de nome duplicado                                    |
-| ❌ Não cadastrar produto sem token                             | 401, mensagem; produto não persistido                              |
-| ❌ Não permitir cadastro por usuário sem perfil administrador  | 403, "Rota exclusiva para administradores"; produto não persistido |
+**3. Produtos** ([produtos.cy.js](cypress/e2e/api/produtos.cy.js))
 
----
+| Tipo     | Caso                                          | O que é validado                                                  |
+| -------- | --------------------------------------------- | ----------------------------------------------------------------- |
+| Positivo | Cadastrar produto `@smoke`                    | 201, contrato; o `GET /produtos/{id}` devolve o que foi enviado   |
+| Positivo | Editar produto                                | 200 e a consulta seguinte já traz os dados novos                  |
+| Positivo | Excluir produto                               | 200 e a consulta seguinte retorna "Produto não encontrado"        |
+| Negativo | Cadastrar com nome repetido                   | 400 e mensagem de nome duplicado                                  |
+| Negativo | Cadastrar sem token                           | 401 e o produto não é salvo                                       |
+| Negativo | Cadastrar com usuário que não é administrador | 403 "Rota exclusiva para administradores" e o produto não é salvo |
 
-## Stack
+## Bibliotecas
 
-| Ferramenta                                                                              | Uso                                                            |
-| --------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| [Cypress 16](https://www.cypress.io/)                                                   | Framework de testes E2E e de API                               |
-| [@faker-js/faker](https://fakerjs.dev/)                                                 | Massa de dados realista (pt_BR) e única a cada execução        |
-| [Ajv](https://ajv.js.org/) + ajv-formats                                                | Validação de contrato das respostas com JSON Schema            |
-| [@cypress/grep](https://github.com/cypress-io/cypress/tree/develop/npm/grep)            | Execução filtrada por tags (`@smoke`, `@api`, `@frontend`...)  |
-| [cypress-mochawesome-reporter](https://github.com/LironEr/cypress-mochawesome-reporter) | Relatório HTML com gráficos e screenshots das falhas embutidos |
-| ESLint 10 + eslint-plugin-cypress, Prettier                                             | Padronização e boas práticas de código                         |
-| Husky, lint-staged, commitlint                                                          | Lint no pre-commit e mensagens no padrão Conventional Commits  |
-| GitHub Actions                                                                          | Pipeline de CI com as suítes em paralelo                       |
+| Biblioteca                                                                              | Para quê                                                        |
+| --------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| [Cypress 16](https://www.cypress.io/)                                                   | Testes de frontend e de API                                     |
+| [@faker-js/faker](https://fakerjs.dev/)                                                 | Gerar dados de teste em pt_BR, diferentes a cada execução       |
+| [Ajv](https://ajv.js.org/) e ajv-formats                                                | Validar o contrato das respostas com JSON Schema                |
+| [@cypress/grep](https://github.com/cypress-io/cypress/tree/develop/npm/grep)            | Rodar testes por tag (`@smoke`, `@api`, `@frontend`, etc.)      |
+| [cypress-mochawesome-reporter](https://github.com/LironEr/cypress-mochawesome-reporter) | Relatório HTML com os screenshots das falhas                    |
+| ESLint, eslint-plugin-cypress e Prettier                                                | Padrão de código                                                |
+| Husky, lint-staged e commitlint                                                         | Lint antes do commit e mensagens no padrão Conventional Commits |
 
----
+## Como o projeto está organizado
 
-## Arquitetura e padrões de projeto
+```
+cypress/
+├── e2e/
+│   ├── api/             # cenários de API
+│   └── frontend/        # cenários de frontend
+└── support/
+    ├── api/
+    │   ├── api-client.js
+    │   ├── schemas/     # JSON Schemas das respostas
+    │   └── services/    # um service por recurso da API
+    ├── assertions/      # assertiva matchSchema
+    ├── commands/        # massa de dados, sessão e getByTestId
+    ├── constants/       # mensagens, status HTTP e rotas
+    ├── factories/       # geração de usuários e produtos
+    ├── pages/           # Page Objects
+    ├── utils/
+    └── e2e.js
+```
 
-- **Page Object Model**: cada tela é uma classe em [`support/pages`](cypress/support/pages) que expõe seus elementos (`elements`) e ações de negócio (`login`, `register`). As **assertivas ficam nos specs**, para que cada teste mostre com clareza o que está sendo verificado. Componentes compartilhados, como os alertas, ficam em `pages/components`.
-- **Service Object**: cada recurso da API tem um service em [`support/api/services`](cypress/support/api/services) (`UsersService`, `AuthService`, `ProductsService`) sobre um cliente HTTP único ([`api-client.js`](cypress/support/api/api-client.js)). O cliente desabilita `failOnStatusCode` porque o status é sempre validado explicitamente pelo teste, inclusive nos casos 4xx.
-- **Factory**: [`UserFactory`](cypress/support/factories/user.factory.js) e [`ProductFactory`](cypress/support/factories/product.factory.js) geram dados válidos e únicos, com sobrescrita de qualquer campo (`UserFactory.admin({ email })`).
-- **Testes de contrato**: JSON Schemas em [`support/api/schemas`](cypress/support/api/schemas) com `additionalProperties: false` e uma assertiva Chai customizada, legível no teste:
+Algumas decisões:
+
+- **Page Objects**: cada tela tem uma classe em `support/pages` com os elementos e as ações (`login`, `register`). As assertivas ficam nos specs, assim dá para ler o teste e saber o que ele verifica sem abrir outro arquivo.
+- **Services da API**: `UsersService`, `AuthService` e `ProductsService` usam o mesmo `api-client.js`. O `failOnStatusCode` fica desligado porque os testes negativos precisam receber o 4xx e validar.
+- **Factories**: `UserFactory` e `ProductFactory` geram dados válidos e permitem sobrescrever qualquer campo, por exemplo `UserFactory.build({ email })`.
+- **Contrato**: os schemas usam `additionalProperties: false`, então um campo novo ou faltando na resposta quebra o teste. A assertiva fica assim:
   ```js
   expect(response.body).to.matchSchema(SCHEMAS.user);
   ```
-  Em caso de falha, a mensagem aponta o campo exato: `data/administrador must be equal to one of the allowed values`.
-- **Pré-condições via API**: os testes de frontend criam usuários e produtos pela API (`cy.createUser`, `cy.createProduct`) e autenticam com `cy.loginByApi` + `cy.session` quando o login não é o objeto do teste. A UI só é exercitada no que está sendo testado, o que torna os testes mais rápidos e estáveis.
-- **Testes independentes e limpeza automática**: cada teste cria a própria massa de dados. Todo recurso criado é registrado e removido num hook global ao final do spec, mesmo quando um teste falha, para não poluir a API pública. Produtos são removidos antes dos usuários, porque excluir o usuário invalida o token necessário para excluir os produtos.
-- **Assertivas de rede no E2E**: `cy.intercept` confirma o status devolvido pela API à UI e captura o `_id` gerado para a limpeza. No cadastro de produto, o teste também confirma no backend que o que foi persistido é exatamente o que foi digitado.
-- **Seletores estáveis**: somente `data-testid` (via `cy.getByTestId`), sem dependência de CSS ou de textos que mudam.
-- **Sem esperas fixas**: nenhum `cy.wait(ms)`. A sincronização usa as asserções com retentativa do Cypress e aliases de rede.
-- **Constantes centralizadas**: mensagens, status HTTP, rotas e chaves de sessão em [`support/constants`](cypress/support/constants). Uma mudança de texto na aplicação exige ajuste em um único lugar.
+- **Pré-condições pela API**: nos testes de frontend, usuários e produtos são criados pela API (`cy.createUser`, `cy.createProduct`). No cenário de produto o login também é feito pela API com `cy.session`, porque ali o login não é o que está sendo testado.
+- **Limpeza**: tudo o que os testes criam é apagado no fim de cada spec, mesmo se algum teste falhar. Os produtos são apagados antes dos usuários, porque quando o admin é excluído o token dele deixa de valer.
+- **Intercept no frontend**: o `cy.intercept` confere o status que a API devolveu para a tela e pega o `_id` do que foi criado.
+- **Seletores**: só `data-testid`, pelo comando `cy.getByTestId`.
+- **Sem `cy.wait` com tempo fixo**: a espera é feita pelas próprias assertivas do Cypress e pelos aliases de rede.
 
----
+## Como rodar
 
-## Estrutura do projeto
-
-```
-.
-├── .github/workflows/ci.yml        # Pipeline: lint → testes de API e frontend em paralelo
-├── cypress/
-│   ├── e2e/
-│   │   ├── api/                    # Cenários de API
-│   │   │   ├── login.cy.js
-│   │   │   ├── produtos.cy.js
-│   │   │   └── usuarios.cy.js
-│   │   └── frontend/               # Cenários E2E
-│   │       ├── cadastro-produto.cy.js
-│   │       ├── cadastro-usuario.cy.js
-│   │       └── login.cy.js
-│   └── support/
-│       ├── api/
-│       │   ├── api-client.js       # Cliente HTTP base
-│       │   ├── schemas/            # Contratos JSON Schema
-│       │   └── services/           # Service Objects por recurso
-│       ├── assertions/             # Assertiva customizada matchSchema
-│       ├── commands/               # Comandos de massa de dados, sessão e UI
-│       ├── constants/              # Mensagens, status HTTP e rotas
-│       ├── factories/              # Geração de massa de dados
-│       ├── pages/                  # Page Objects e componentes
-│       ├── utils/                  # Utilitários (decodificação de JWT)
-│       ├── e2e.js                  # Registro de plugins, comandos e limpeza global
-│       └── index.d.ts              # Tipagens dos comandos customizados
-├── cypress.config.js
-├── eslint.config.mjs
-└── commitlint.config.js
-```
-
----
-
-## Como executar
-
-### Pré-requisitos
-
-- [Node.js](https://nodejs.org/) 22 ou superior (versão de referência em [`.nvmrc`](.nvmrc))
-- Google Chrome (opcional: o Electron embutido no Cypress é usado por padrão)
-
-### Instalação
+Precisa de Node.js 22 ou mais novo (o `.nvmrc` aponta a versão usada).
 
 ```bash
 git clone https://github.com/AlexDevNavarro/cypress-serverest-qa.git
@@ -174,69 +128,39 @@ cd cypress-serverest-qa
 npm ci
 ```
 
-### Scripts
+| Comando                 | O que faz                         |
+| ----------------------- | --------------------------------- |
+| `npm run cy:open`       | Abre o Cypress no modo interativo |
+| `npm test`              | Roda todos os testes              |
+| `npm run test:api`      | Roda só os testes de API          |
+| `npm run test:frontend` | Roda só os testes de frontend     |
+| `npm run test:smoke`    | Roda só os casos `@smoke`         |
+| `npm run lint`          | ESLint                            |
+| `npm run format`        | Prettier                          |
 
-| Comando                 | Descrição                                        |
-| ----------------------- | ------------------------------------------------ |
-| `npm run cy:open`       | Abre o Cypress no modo interativo                |
-| `npm test`              | Executa todos os testes em modo headless         |
-| `npm run test:api`      | Executa somente os cenários de API               |
-| `npm run test:frontend` | Executa somente os cenários de frontend          |
-| `npm run test:smoke`    | Executa somente os casos críticos (tag `@smoke`) |
-| `npm run lint`          | Analisa o código com ESLint                      |
-| `npm run format`        | Formata o código com Prettier                    |
-
-Para rodar em outro navegador ou filtrar por outra tag:
+Outros exemplos:
 
 ```bash
 npx cypress run --browser chrome
 npx cypress run --expose grepTags=@produtos
-```
-
-A URL da API fica em `expose.apiUrl` no [`cypress.config.js`](cypress.config.js) e pode ser sobrescrita sem alterar código:
-
-```bash
 npx cypress run --expose apiUrl=http://localhost:3000
 ```
 
-> **VS Code:** o terminal integrado do VS Code pode definir `ELECTRON_RUN_AS_NODE=1`, o que impede o Cypress de abrir (`bad option: --no-sandbox`). Nesse caso, execute com `env -u ELECTRON_RUN_AS_NODE npm test` ou use um terminal externo.
+Se o Cypress não abrir pelo terminal do VS Code com o erro `bad option: --no-sandbox`, é a variável `ELECTRON_RUN_AS_NODE` que o VS Code define. Dá para rodar com `env -u ELECTRON_RUN_AS_NODE npm test` ou usar outro terminal.
 
----
+O relatório fica em `cypress/reports/index.html` depois de cada execução.
 
-## Relatórios
+## CI
 
-Após cada execução, o relatório HTML é gerado em `cypress/reports/index.html`, com gráficos, duração de cada teste e o screenshot das falhas embutido no próprio arquivo.
+O [workflow](.github/workflows/ci.yml) roda a cada push na `main`, em pull requests, manualmente e uma vez por dia em dias úteis. Primeiro passa o lint e o Prettier; depois os testes de API e de frontend rodam em paralelo no Chrome. Os relatórios ficam como artefato na página da execução e os screenshots são anexados quando algum teste falha.
 
-No CI, o relatório de cada suíte fica disponível como artefato (`relatorio-api` e `relatorio-frontend`) na página da execução, e o resumo aparece no _job summary_ do GitHub Actions.
+Como a aplicação é pública e às vezes oscila, o Cypress tenta de novo até 2 vezes um teste que falhar no CI.
 
----
+## O que encontrei na aplicação
 
-## Integração contínua
+Durante a análise apareceram alguns pontos que não impedem os testes, mas que eu levaria para o time se fosse um produto real:
 
-O workflow [`ci.yml`](.github/workflows/ci.yml) roda em todo push na `main`, em pull requests, manualmente e diariamente em dias úteis, para detectar mudanças na aplicação pública:
-
-1. **Lint e formatação**: ESLint e Prettier.
-2. **Testes de API** e **testes de Frontend** em paralelo (matriz), no Chrome, com retentativa automática de até 2 vezes para mitigar a instabilidade de rede do ambiente público.
-3. Publicação do relatório HTML e dos screenshots de falha como artefatos.
-
----
-
-## Qualidade de código e commits
-
-- **ESLint 10** (flat config) com as regras recomendadas do `eslint-plugin-cypress`, além de proibir `force: true`, `cy.pause()` e `cy.debug()`.
-- **Prettier** para formatação consistente.
-- **Husky + lint-staged**: lint e formatação automáticos dos arquivos alterados antes de cada commit.
-- **commitlint**: mensagens no padrão [Conventional Commits](https://www.conventionalcommits.org/pt-br/) (`feat`, `test`, `ci`, `docs`, `chore`), com histórico incremental: infraestrutura, camada de suporte e um commit por cenário.
-
----
-
-## Observações sobre a aplicação
-
-Pontos encontrados durante a análise da aplicação. Não bloqueiam os testes, mas valeriam uma conversa com o time, se o ServeRest fosse um produto real:
-
-| Tipo          | Observação                                                                                                                                                                                                            |
-| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Segurança     | O payload do JWT retornado no login contém a **senha do usuário em texto puro**, e `GET /usuarios` também lista as senhas.                                                                                            |
-| API / REST    | Recurso inexistente retorna **400** (`Usuário não encontrado` / `Produto não encontrado`) em vez de **404**. `DELETE` de recurso inexistente retorna 200 (`Nenhum registro excluído`).                                |
-| Performance   | Após login ou cadastro, o frontend baixa a **lista completa de usuários** (`GET /usuarios`) para descobrir o perfil do usuário logado. No cadastro, ainda há uma espera fixa de 3 segundos antes do redirecionamento. |
-| Testabilidade | O botão de cadastro de produto tem o `data-testid` com erro de digitação `cadastarProdutos`. O Page Object documenta isso para não confundir quem mantém os testes.                                                   |
+- **Segurança**: o token JWT do login carrega a senha do usuário em texto puro no payload, e o `GET /usuarios` também devolve as senhas.
+- **API**: buscar um usuário ou produto que não existe retorna 400 em vez de 404. Excluir um registro que não existe retorna 200 com "Nenhum registro excluído".
+- **Performance**: depois do login ou do cadastro, o frontend baixa a lista inteira de usuários (`GET /usuarios`) só para descobrir se quem entrou é admin. No cadastro ainda tem uma espera fixa de 3 segundos antes de redirecionar.
+- **Testabilidade**: o botão de cadastrar produto tem `data-testid="cadastarProdutos"`, faltando o "r".
