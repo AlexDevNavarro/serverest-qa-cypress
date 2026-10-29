@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "created",
+  "title": "Resposta de cadastro",
+  "type": "object",
+  "required": ["message", "_id"],
+  "additionalProperties": false,
+  "properties": {
+    "message": { "type": "string", "minLength": 1 },
+    "_id": { "type": "string", "pattern": "^[A-Za-z0-9]{16}$" }
+  }
+}
