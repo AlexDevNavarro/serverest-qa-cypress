@@ -25,7 +25,10 @@ declare namespace Cypress {
     getAuthToken(credentials: Pick<ServeRestUser, 'email' | 'password'>): Chainable<string>;
 
     /** Cadastra um produto via API (registrado para limpeza) e retorna seus dados com o `_id`. */
-    createProduct(token: string, overrides?: Partial<ServeRestProduct>): Chainable<ServeRestProduct>;
+    createProduct(
+      token: string,
+      overrides?: Partial<ServeRestProduct>,
+    ): Chainable<ServeRestProduct>;
 
     /** Registra um usuário criado fora dos comandos de massa para ser removido ao final do spec. */
     trackUserForCleanup(id: string): Chainable<void>;
